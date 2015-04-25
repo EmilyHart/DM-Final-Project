@@ -13,13 +13,13 @@ SELECT
     STATUS_EFF_DATE,
     ADMIN,
     NETWORK_ACCOUNT_ID
-FROM active_person where ADMIN = TRUE ;
+FROM active_employees where ADMIN = TRUE ;
 
 create or replace TRIGGER employee_admin_trigger
      INSTEAD OF insert ON employee_admin
      FOR EACH ROW
 BEGIN
-     insert into active_employee( 
+     insert into active_employees( 
     EMPLOYEE_ID,
     NAME,
     LAB,
@@ -50,13 +50,13 @@ SELECT
     STATUS_EFF_DATE,
     ADMIN,
     NETWORK_ACCOUNT_ID
-FROM active_person where ADMIN = FALSE ;
+FROM active_employees where ADMIN = FALSE ;
 
 create or replace TRIGGER employee_user_trigger
      INSTEAD OF insert ON employee_user
      FOR EACH ROW
 BEGIN
-     insert into active_employee( 
+     insert into active_employees( 
     EMPLOYEE_ID,
     NAME,
     LAB,
