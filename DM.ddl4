@@ -13,7 +13,7 @@ SELECT
     STATUS_EFF_DATE,
     ADMIN,
     NETWORK_ACCOUNT_ID
-FROM active_employees where ADMIN = TRUE ;
+FROM active_employees where ADMIN = 1 ;
 
 create or replace TRIGGER employee_admin_trigger
      INSTEAD OF insert ON employee_admin
@@ -35,7 +35,7 @@ BEGIN
     :NEW.DIVISION,
     'Active',
     SYSDATE,
-    TRUE,
+    1,
     :NEW.NETWORK_ACCOUNT_ID) ;
 END;
 /
@@ -50,7 +50,7 @@ SELECT
     STATUS_EFF_DATE,
     ADMIN,
     NETWORK_ACCOUNT_ID
-FROM active_employees where ADMIN = FALSE ;
+FROM active_employees where ADMIN = 0 ;
 
 create or replace TRIGGER employee_user_trigger
      INSTEAD OF insert ON employee_user
@@ -72,33 +72,33 @@ BEGIN
     :NEW.DIVISION,
     'Active',
     SYSDATE,
-    FALSE,
+    0,
     :NEW.NETWORK_ACCOUNT_ID) ;
 END;
 /
 
-create view member_user as
+create view member_employee as
 SELECT 
     MEMBER_ID,
     DATE_ADDED,
-    SEQ_ID,
-    EMPLOYEE_ID
-FROM nl_members where SEQ_ID is NULL;
+    NOTICE_LISTS_SEQ_ID,
+    ACTIVE_EMPLOYEES_EMPLOYEE_ID
+FROM nl_members where NOTICE_LISTS_SEQ_ID is NULL;
 
-create or replace TRIGGER member_user_trigger
-     INSTEAD OF insert ON nl_members
+create or replace TRIGGER member_employee_trigger
+     INSTEAD OF insert ON member_employee
      FOR EACH ROW
 BEGIN
      insert into nl_members( 
     MEMBER_ID,
     DATE_ADDED,
-    SEQ_ID,
-    EMPLOYEE_ID)
+    NOTICE_LISTS_SEQ_ID,
+    ACTIVE_EMPLOYEES_EMPLOYEE_ID)
      VALUES ( 
     :NEW.MEMBER_ID,
     SYSDATE,
     NULL,
-    :NEW.EMPLOYEE_ID) ;
+    :NEW.ACTIVE_EMPLOYEES_EMPLOYEE_ID) ;
 END;
 /
 
@@ -106,23 +106,23 @@ create view member_list as
 SELECT 
     MEMBER_ID,
     DATE_ADDED,
-    SEQ_ID,
-    EMPLOYEE_ID
-FROM nl_members where EMPLOYEE_ID is NULL;
+    NOTICE_LISTS_SEQ_ID,
+    ACTIVE_EMPLOYEES_EMPLOYEE_ID
+FROM nl_members where ACTIVE_EMPLOYEES_EMPLOYEE_ID is NULL;
 
 create or replace TRIGGER member_list_trigger
-     INSTEAD OF insert ON nl_members
+     INSTEAD OF insert ON member_list
      FOR EACH ROW
 BEGIN
      insert into nl_members( 
     MEMBER_ID,
     DATE_ADDED,
-    SEQ_ID,
-    EMPLOYEE_ID)
+    NOTICE_LISTS_SEQ_ID,
+    ACTIVE_EMPLOYEES_EMPLOYEE_ID)
      VALUES ( 
     :NEW.MEMBER_ID,
     SYSDATE,
-    :NEW.SEQ_ID,
+    :NEW.NOTICE_LISTS_SEQ_ID,
     NULL) ;
 END;
 /
