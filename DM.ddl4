@@ -1,0 +1,128 @@
+drop view employee_admin;
+drop view employee_user;
+drop view member_employee;
+drop view member_list;
+
+create view employee_admin as
+SELECT 
+    EMPLOYEE_ID,
+    NAME,
+    LAB,
+    DIVISION,
+    STATUS,
+    STATUS_EFF_DATE,
+    ADMIN,
+    NETWORK_ACCOUNT_ID
+FROM active_person where ADMIN = TRUE ;
+
+create or replace TRIGGER employee_admin_trigger
+     INSTEAD OF insert ON employee_admin
+     FOR EACH ROW
+BEGIN
+     insert into active_employee( 
+    EMPLOYEE_ID,
+    NAME,
+    LAB,
+    DIVISION,
+    STATUS,
+    STATUS_EFF_DATE,
+    ADMIN,
+    NETWORK_ACCOUNT_ID)
+     VALUES ( 
+    :NEW.EMPLOYEE_ID,
+    :NEW.NAME,
+    :NEW.LAB,
+    :NEW.DIVISION,
+    'Active',
+    SYSDATE,
+    TRUE,
+    :NEW.NETWORK_ACCOUNT_ID) ;
+END;
+/
+
+create view employee_user as
+SELECT 
+    EMPLOYEE_ID,
+    NAME,
+    LAB,
+    DIVISION,
+    STATUS,
+    STATUS_EFF_DATE,
+    ADMIN,
+    NETWORK_ACCOUNT_ID
+FROM active_person where ADMIN = FALSE ;
+
+create or replace TRIGGER employee_user_trigger
+     INSTEAD OF insert ON employee_user
+     FOR EACH ROW
+BEGIN
+     insert into active_employee( 
+    EMPLOYEE_ID,
+    NAME,
+    LAB,
+    DIVISION,
+    STATUS,
+    STATUS_EFF_DATE,
+    ADMIN,
+    NETWORK_ACCOUNT_ID)
+     VALUES ( 
+    :NEW.EMPLOYEE_ID,
+    :NEW.NAME,
+    :NEW.LAB,
+    :NEW.DIVISION,
+    'Active',
+    SYSDATE,
+    FALSE,
+    :NEW.NETWORK_ACCOUNT_ID) ;
+END;
+/
+
+create view member_user as
+SELECT 
+    MEMBER_ID,
+    DATE_ADDED,
+    SEQ_ID,
+    EMPLOYEE_ID
+FROM nl_members where SEQ_ID is NULL;
+
+create or replace TRIGGER member_user_trigger
+     INSTEAD OF insert ON nl_members
+     FOR EACH ROW
+BEGIN
+     insert into nl_members( 
+    MEMBER_ID,
+    DATE_ADDED,
+    SEQ_ID,
+    EMPLOYEE_ID)
+     VALUES ( 
+    :NEW.MEMBER_ID,
+    SYSDATE,
+    NULL,
+    :NEW.EMPLOYEE_ID) ;
+END;
+/
+
+create view member_list as
+SELECT 
+    MEMBER_ID,
+    DATE_ADDED,
+    SEQ_ID,
+    EMPLOYEE_ID
+FROM nl_members where EMPLOYEE_ID is NULL;
+
+create or replace TRIGGER member_list_trigger
+     INSTEAD OF insert ON nl_members
+     FOR EACH ROW
+BEGIN
+     insert into nl_members( 
+    MEMBER_ID,
+    DATE_ADDED,
+    SEQ_ID,
+    EMPLOYEE_ID)
+     VALUES ( 
+    :NEW.MEMBER_ID,
+    SYSDATE,
+    :NEW.SEQ_ID,
+    NULL) ;
+END;
+/

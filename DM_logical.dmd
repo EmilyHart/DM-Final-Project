@@ -1,0 +1,8 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<OSDM_Design class="oracle.dbtools.crest.model.design.Design" name="DM_logical" id="9686C10D-69F9-76CE-973A-491D2F5B48F4" version="3.5">
+<createdBy>ailae</createdBy>
+<createdTime>2015-04-21 21:06:36 UTC</createdTime>
+<ownerDesignName>DM_logical</ownerDesignName>
+<capitalNames>false</capitalNames>
+<designId>9686C10D-69F9-76CE-973A-491D2F5B48F4</designId>
+</OSDM_Design>

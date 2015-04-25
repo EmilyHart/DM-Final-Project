@@ -1,0 +1,166 @@
+DROP SEQUENCE Active_Employees_seq ; 
+create sequence Active_Employees_seq 
+start with 100 
+increment by 1 
+nomaxvalue 
+;
+
+create or replace trigger Active_Employees_PK_trig 
+before insert on Active_Employees
+for each row 
+begin 
+select Active_Employees_seq.nextval into :new.employee_id from dual; 
+end; 
+/
+alter table Active_Employees add created date ; 
+alter table Active_Employees add created_by VARCHAR2 (255) ; 
+alter table Active_Employees add row_version_number integer ; 
+alter table Active_Employees add updated date ; 
+alter table Active_Employees add updated_by VARCHAR2 (255) ; 
+/
+create or replace trigger Active_Employees_AUD_trig 
+before insert or update on Active_Employees 
+for each row 
+begin 
+  if inserting then 
+    :new.created := localtimestamp; 
+    :new.created_by := nvl(wwv_flow.g_user,user); 
+    :new.updated := localtimestamp; 
+    :new.updated_by := nvl(wwv_flow.g_user,user); 
+    :new.row_version_number := 1; 
+  elsif updating then 
+    :new.row_version_number := nvl(:old.row_version_number,1) + 1; 
+  end if; 
+  if inserting or updating then 
+    :new.updated := localtimestamp; 
+    :new.updated_by := nvl(wwv_flow.g_user,user); 
+  end if; 
+end; 
+/
+
+DROP SEQUENCE Document_seq ; 
+create sequence Document_seq 
+start with 100 
+increment by 1 
+nomaxvalue 
+;
+
+create or replace trigger Document_PK_trig 
+before insert on Document
+for each row 
+begin 
+select Document_seq.nextval into :new.document_id from dual; 
+end; 
+/
+alter table Document add created date ; 
+alter table Document add created_by VARCHAR2 (255) ; 
+alter table Document add row_version_number integer ; 
+alter table Document add updated date ; 
+alter table Document add updated_by VARCHAR2 (255) ; 
+/
+create or replace trigger Document_AUD_trig 
+before insert or update on Document 
+for each row 
+begin 
+  if inserting then 
+    :new.created := localtimestamp; 
+    :new.created_by := nvl(wwv_flow.g_user,user); 
+    :new.updated := localtimestamp; 
+    :new.updated_by := nvl(wwv_flow.g_user,user); 
+    :new.row_version_number := 1; 
+  elsif updating then 
+    :new.row_version_number := nvl(:old.row_version_number,1) + 1; 
+  end if; 
+  if inserting or updating then 
+    :new.updated := localtimestamp; 
+    :new.updated_by := nvl(wwv_flow.g_user,user); 
+  end if; 
+end; 
+/
+
+DROP SEQUENCE NL_Members_seq ; 
+create sequence NL_Members_seq 
+start with 100 
+increment by 1 
+nomaxvalue 
+;
+
+create or replace trigger NL_Members_PK_trig 
+before insert on NL_Members
+for each row 
+begin 
+select NL_Members_seq.nextval into :new.member_id from dual; 
+end; 
+/
+alter table NL_Members add created date ; 
+alter table NL_Members add created_by VARCHAR2 (255) ; 
+alter table NL_Members add row_version_number integer ; 
+alter table NL_Members add updated date ; 
+alter table NL_Members add updated_by VARCHAR2 (255) ; 
+/
+create or replace trigger NL_Members_AUD_trig 
+before insert or update on NL_Members 
+for each row 
+begin 
+  if inserting then 
+    :new.created := localtimestamp; 
+    :new.created_by := nvl(wwv_flow.g_user,user); 
+    :new.updated := localtimestamp; 
+    :new.updated_by := nvl(wwv_flow.g_user,user); 
+    :new.row_version_number := 1; 
+  elsif updating then 
+    :new.row_version_number := nvl(:old.row_version_number,1) + 1; 
+  end if; 
+  if inserting or updating then 
+    :new.updated := localtimestamp; 
+    :new.updated_by := nvl(wwv_flow.g_user,user); 
+  end if; 
+end; 
+/
+
+DROP SEQUENCE Notice_Lists_seq ; 
+create sequence Notice_Lists_seq 
+start with 100 
+increment by 1 
+nomaxvalue 
+;
+
+create or replace trigger Notice_Lists_PK_trig 
+before insert on Notice_Lists
+for each row 
+begin 
+select Notice_Lists_seq.nextval into :new.seq_id from dual; 
+end; 
+/
+alter table Notice_Lists add created date ; 
+alter table Notice_Lists add created_by VARCHAR2 (255) ; 
+alter table Notice_Lists add row_version_number integer ; 
+alter table Notice_Lists add updated date ; 
+alter table Notice_Lists add updated_by VARCHAR2 (255) ; 
+/
+create or replace trigger Notice_Lists_AUD_trig 
+before insert or update on Notice_Lists 
+for each row 
+begin 
+  if inserting then 
+    :new.created := localtimestamp; 
+    :new.created_by := nvl(wwv_flow.g_user,user); 
+    :new.updated := localtimestamp; 
+    :new.updated_by := nvl(wwv_flow.g_user,user); 
+    :new.row_version_number := 1; 
+  elsif updating then 
+    :new.row_version_number := nvl(:old.row_version_number,1) + 1; 
+  end if; 
+  if inserting or updating then 
+    :new.updated := localtimestamp; 
+    :new.updated_by := nvl(wwv_flow.g_user,user); 
+  end if; 
+end; 
+/
+
+DROP INDEX NL_Members_member_id_FK_0 ;
+CREATE INDEX NL_Members_member_id_FK_0 ON Document(NL_Members_member_id) ;
+DROP INDEX Active_Employees_emplo_FK_1 ;
+CREATE INDEX Active_Employees_emplo_FK_1 ON NL_Members(Active_Employees_employee_id) ;
+DROP INDEX Notice_Lists_seq_id_FK_2 ;
+CREATE INDEX Notice_Lists_seq_id_FK_2 ON NL_Members(Notice_Lists_seq_id) ;
