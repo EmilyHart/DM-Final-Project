@@ -20,12 +20,14 @@ CREATE TABLE Active_Employees
     name               VARCHAR2 (30) ,
     lab                VARCHAR2 (4) ,
     division           VARCHAR2 (4) ,
-    status             VARCHAR2 (1) ,
-    status_eff_date    DATE ,
-    admin              CHAR (1) ,
+    status             VARCHAR2 (1) default 'A',
+    status_eff_date    DATE default SYSDATE,
+    admin              CHAR (1),
     network_account_id INTEGER
   ) ;
 ALTER TABLE Active_Employees ADD CONSTRAINT Active_Employees_PK PRIMARY KEY ( employee_id ) ;
+
+ALTER TABLE Active_Employees ADD CHECK (status = 'A' OR status = 'I');
 
 CREATE TABLE Document
   (
@@ -36,6 +38,8 @@ CREATE TABLE Document
     file_data BLOB ,
     file_comments        VARCHAR2 (4000) ,
     tags                 VARCHAR2 (4000) ,
+    file_size INTEGER,
+    Download BLOB,
     NL_Members_member_id INTEGER
   ) ;
 ALTER TABLE Document ADD CONSTRAINT Document_PK PRIMARY KEY ( document_id ) ;
@@ -44,6 +48,7 @@ CREATE TABLE NL_Members
   (
     member_id                    INTEGER NOT NULL ,
     date_added                   DATE ,
+    list_seq_id                  INTEGER NOT NULL,
     Notice_Lists_seq_id          INTEGER ,
     Active_Employees_employee_id INTEGER
   ) ;
@@ -56,17 +61,22 @@ CREATE TABLE Notice_Lists
     ownership_div_code VARCHAR2 (4) ,
     description        VARCHAR2 (3500) ,
     external_view_name VARCHAR2 (50) ,
-    creation_date      DATE ,
-    status             VARCHAR2 (1) ,
-    status_eff_date    DATE
+    creation_date      DATE default SYSDATE,
+    status             VARCHAR2 (1) default 'A' ,
+    status_eff_date    DATE default SYSDATE
   ) ;
+ 
 ALTER TABLE Notice_Lists ADD CONSTRAINT Notice_Lists_PK PRIMARY KEY ( seq_id ) ;
+
+ALTER TABLE Notice_Lists ADD CHECK (status = 'A' OR status = 'I');
 
 ALTER TABLE Document ADD CONSTRAINT Document_NL_Members_FK FOREIGN KEY ( NL_Members_member_id ) REFERENCES NL_Members ( member_id ) ;
 
 ALTER TABLE NL_Members ADD CONSTRAINT NL_Members_Active_Employees_FK FOREIGN KEY ( Active_Employees_employee_id ) REFERENCES Active_Employees ( employee_id ) ;
 
 ALTER TABLE NL_Members ADD CONSTRAINT NL_Members_Notice_Lists_FK FOREIGN KEY ( Notice_Lists_seq_id ) REFERENCES Notice_Lists ( seq_id ) ;
+
+ALTER TABLE NL_Members ADD CONSTRAINT NL_Members_Origin_List_FK FOREIGN KEY ( list_seq_id ) REFERENCES Notice_Lists ( seq_id ) ;
 
 
 -- Oracle SQL Developer Data Modeler Summary Report: 

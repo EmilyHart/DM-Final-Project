@@ -2,6 +2,25 @@ drop view employee_admin;
 drop view employee_user;
 drop view member_employee;
 drop view member_list;
+drop view tree_view;
+
+create view tree_view as
+SELECT
+    name as name,
+    SEQ_ID as ID,
+    to_number(NULL) as paID
+FROM notice_lists
+
+UNION
+
+SELECT
+    name as name,
+    NOTICE_LISTS_SEQ_ID as ID,
+    LIST_SEQ_ID as PaID
+from nl_members join
+     notice_lists on (seq_id = notice_lists_seq_id)
+     where notice_lists_seq_id is not null and list_seq_id is not null
+    ;
 
 create view employee_admin as
 SELECT 
@@ -33,7 +52,7 @@ BEGIN
     :NEW.NAME,
     :NEW.LAB,
     :NEW.DIVISION,
-    'Active',
+    'A',
     SYSDATE,
     1,
     :NEW.NETWORK_ACCOUNT_ID) ;
@@ -70,7 +89,7 @@ BEGIN
     :NEW.NAME,
     :NEW.LAB,
     :NEW.DIVISION,
-    'Active',
+    'A',
     SYSDATE,
     0,
     :NEW.NETWORK_ACCOUNT_ID) ;
@@ -81,6 +100,7 @@ create view member_employee as
 SELECT 
     MEMBER_ID,
     DATE_ADDED,
+    LIST_SEQ_ID,
     NOTICE_LISTS_SEQ_ID,
     ACTIVE_EMPLOYEES_EMPLOYEE_ID
 FROM nl_members where NOTICE_LISTS_SEQ_ID is NULL;
@@ -92,11 +112,13 @@ BEGIN
      insert into nl_members( 
     MEMBER_ID,
     DATE_ADDED,
+    LIST_SEQ_ID,
     NOTICE_LISTS_SEQ_ID,
     ACTIVE_EMPLOYEES_EMPLOYEE_ID)
      VALUES ( 
     :NEW.MEMBER_ID,
     SYSDATE,
+    :NEW.LIST_SEQ_ID,
     NULL,
     :NEW.ACTIVE_EMPLOYEES_EMPLOYEE_ID) ;
 END;
@@ -106,6 +128,7 @@ create view member_list as
 SELECT 
     MEMBER_ID,
     DATE_ADDED,
+    LIST_SEQ_ID,
     NOTICE_LISTS_SEQ_ID,
     ACTIVE_EMPLOYEES_EMPLOYEE_ID
 FROM nl_members where ACTIVE_EMPLOYEES_EMPLOYEE_ID is NULL;
@@ -117,12 +140,22 @@ BEGIN
      insert into nl_members( 
     MEMBER_ID,
     DATE_ADDED,
+    LIST_SEQ_ID,
     NOTICE_LISTS_SEQ_ID,
     ACTIVE_EMPLOYEES_EMPLOYEE_ID)
      VALUES ( 
     :NEW.MEMBER_ID,
     SYSDATE,
+    :NEW.LIST_SEQ_ID,
     :NEW.NOTICE_LISTS_SEQ_ID,
     NULL) ;
+END;
+/
+
+create or replace TRIGGER notice_list_update_trigger
+     before update of status on notice_lists
+     FOR EACH ROW
+BEGIN
+    :NEW.status_eff_date := sysdate;
 END;
 /
